@@ -1,0 +1,48 @@
+Dfiles      = cellstr(spm_select('FPList', Fmeeg, '^.*\.mat$')); 
+d = 1;
+
+DCM.xY.Dfile    = Dfiles{d}; 
+LFP             = spm_eeg_load(DCM.xY.Dfile); 
+Fs              = fsample(LFP); 
+smpls           = size(LFP,2); 
+timax           = time(LFP); 
+LFP_conds       = condlist(LFP); 
+
+for c = 1:length(LFP_conds)
+disp(['Currently at ' num2str(c) ' of ' num2str(length(LFP_conds)) ' windows']); 
+
+% Set up DCM details
+%--------------------------------------------------------------------------
+DCM.options.analysis    = 'CSD';        % cross-spectral density modelling
+DCM.options.model       = 'CMM';        %
+DCM.options.spatial     = 'LFP';        % i.e. local field potential recording
+DCM.options.Tdcm        = [timax(1) timax(end)] * 1000;     % time in ms
+
+DCM.options.Fdcm    = [2 70];     	% frequency range  
+DCM.options.D       = 1;         	% frequency bin, 1 = no downsampling
+DCM.options.Nmodes  = 1;          	% cosine reduction components used 
+DCM.options.han     = 0;         	% no hanning 
+DCM.options.trials  = c;            % index of ERPs within file
+DCM.Sname           = chanlabels(LFP);
+
+% Set up model connectivity
+%--------------------------------------------------------------------------
+A = ones(length(DCM.Sname)); 
+A = A.*~eye(size(A)); 
+B = ones(length(DCM.Sname)); 
+
+DCM.A{1}    = A;
+DCM.A{2}    = A;
+DCM.A{3}    = zeros(length(A)); 
+
+DCM.B{1}    = [];
+DCM.C       = sparse(length(A), 0); 
+
+% Reorganise model parameters 
+%--------------------------------------------------------------------------
+DCM.M.dipfit.Nm     = DCM.options.Nmodes;
+DCM.M.dipfit.model  = DCM.options.model; 
+DCM.M.dipfit.type   = DCM.options.spatial;
+DCM.M.dipfit
+
+end

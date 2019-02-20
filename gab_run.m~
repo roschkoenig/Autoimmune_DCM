@@ -7,41 +7,32 @@ Fbase   = '/Users/roschkoenig/Dropbox/Research/1902 GABA-Ab';
 fs          = filesep;
 Fscripts    = [Fbase fs 'Scripts'];
 Fdata       = [Fbase fs 'Data']; 
+Fanalysis   = [Fbase fs 'Analysis'];
+Fmeeg       = [Fanalysis fs 'MEEG']; 
 spm('defaults', 'eeg');
+addpath(genpath(Fscripts)); 
 
 % Load data
 %==========================================================================
 M = gab_edf_load(Fdata);
 
+m = M(strcmp({M.name}, 'GABA'));
+I(1).st = 95;       I(1).dr = 26;
+I(2).st = 548;      I(2).dr = 11;
+I(3).st = 3473;     I(3).dr = 13;
+I(4).st = 3509;     I(4).dr = 12; 
+
+% Show spectral changes
+%==========================================================================
+gab_raw_plot(m, I); 
+
 %% Sliding window segmentation
 %==========================================================================
-m = M(strcmp({M.name}, 'GABA'));
-I(1).st = 99;       I(1).dr = 26;
-I(2).st = 570;      I(2).dr = 11;
-I(3).st = 3481;     I(3).dr = 13;
-I(4).st = 3521;     I(4).dr = 12; 
-
-win     = 2; 
-pre     = 10; 
-pst     = 30;
-
-clear D
-for e = 1:length(m.hdr)
-Fs  = m.hdr{e}.Fs; 
-for i = 1:length(I)
-    sz = I(i).st * Fs; 
-    st = [-pre:win/2:pst]*Fs + sz;
-    for s = 1:length(st)-1
-        
-        D(e,i).dat(:,s) = m.dat{e}(1,st(s):(st(s)+win*Fs-1)); 
-        nsamp           = 
-        tft             = real(fft(D(e,i).dat(:,s))); 
-        tft             = tft(1:length(tft)/2 + 1);
-        psd             = 
-%         D(e,i).fft(:,s) = fftD(e,i).dat(:,s)
-    end
+D       = gab_win_slide(m, I, 5, 10, 30); 
+for d = 1:length(D)
+    
 end
-end
+
 
 % Invert individual DCMs
 %==========================================================================
