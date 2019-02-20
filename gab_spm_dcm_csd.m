@@ -125,7 +125,7 @@ try, hE  = DCM.M.hE; hC  = DCM.M.hC; end
  
 % create DCM
 %--------------------------------------------------------------------------
-DCM.M.IS = 'spm_csd_mtf';
+DCM.M.IS = 'gab_spm_csd_mtf';
 DCM.M.g  = 'spm_gx_erp';
 DCM.M.f  = f;
 DCM.M.x  = x;
@@ -152,7 +152,9 @@ end
 % get data-features (in reduced eigenspace)
 %==========================================================================
 if DATA
-    DCM  = spm_dcm_csd_data(DCM);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    DCM  = gab_spm_dcm_csd_data(DCM);   % added log to data estimator
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
  
 % scale data features (to a variance of about 8)
@@ -203,7 +205,7 @@ warning('on', 'SPM:negativeVariance');
  
 % predictions (csd) and error (sensor space)
 %--------------------------------------------------------------------------
-Hc  = spm_csd_mtf(Qp,DCM.M,DCM.xU);                      % prediction
+Hc  = gab_spm_csd_mtf(Qp,DCM.M,DCM.xU);                  % prediction
 Ec  = spm_unvec(spm_vec(DCM.xY.y) - spm_vec(Hc),Hc);     % prediction error
  
  
@@ -219,7 +221,7 @@ qp.L        = ones(1,Ns);             % set virtual electrode gain to unity
 qp.b        = qp.b - 32;              % and suppress non-specific and
 qp.c        = qp.c - 32;              % specific channel noise
 
-[Hs Hz dtf] = spm_csd_mtf(qp,M,DCM.xU);
+[Hs Hz dtf] = gab_spm_csd_mtf(qp,M,DCM.xU);
 [ccf pst]   = spm_csd2ccf(Hs,DCM.M.Hz);
 [coh fsd]   = spm_csd2coh(Hs,DCM.M.Hz);
 DCM.dtf     = dtf;
@@ -269,7 +271,7 @@ j           = 2;
 qp.J{i}     = spm_zeros(qp.J{i});
 qp.J{i}(j)  = 1;
 
-[Hs Hz dtf] = spm_csd_mtf(qp,M,DCM.xU); % conditional cross spectra
+[Hs Hz dtf] = gab_spm_csd_mtf(qp,M,DCM.xU); % conditional cross spectra
 [ccf pst]   = spm_csd2ccf(Hs,DCM.M.Hz); % conditional correlation functions
 [coh fsd]   = spm_csd2coh(Hs,DCM.M.Hz); % conditional covariance
 

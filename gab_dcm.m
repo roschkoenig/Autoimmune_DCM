@@ -1,4 +1,4 @@
-function ACM = gab_dcm(Fmeeg, Fdcm)
+% function ACM = gab_dcm(Fmeeg, Fdcm)
 Dfiles      = cellstr(spm_select('FPList', Fmeeg, '^.*\.mat$')); 
 
 for d = 1:length(Dfiles)
@@ -22,9 +22,9 @@ for d = 1:length(Dfiles)
     DCM.options.spatial     = 'LFP';        % i.e. local field potential recording
     DCM.options.Tdcm        = [timax(1) timax(end)] * 1000;     % time in ms
 
-    DCM.options.Fdcm    = [2 70];     	% frequency range  
+    DCM.options.Fdcm    = [2 60];     	% frequency range  
     DCM.options.D       = 1;         	% frequency bin, 1 = no downsampling
-    DCM.options.Nmodes  = 1;          	% cosine reduction components used 
+    DCM.options.Nmodes  = 4;          	% cosine reduction components used 
     DCM.options.han     = 0;         	% no hanning 
     DCM.options.trials  = c;            % index of ERPs within file
     DCM.Sname           = chanlabels(LFP);
@@ -58,14 +58,18 @@ for d = 1:length(Dfiles)
     oE          = pE;
     oC          = pC; 
 
-    DCM.M.pE    = pE; 
-    DCM.M.pC    = pC; 
+    oE.L        = 4;    oC.L    = oC.L / 32; 
+    oE.T        = -.5; 
+    oE.S        - .2; 
+
+    DCM.M.pE    = oE; 
+    DCM.M.pC    = oC; 
 
     % Define save name and run
     %--------------------------------------------------------------------------
     fs          = filesep; 
     DCM.name    = [Fdcm fs 'DCM_' num2str(d, '%02.f') '_' LFP_conds{c}];
-    DCM         = spm_dcm_csd(DCM); 
+    DCM         = gab_spm_dcm_csd(DCM); 
     ACM(d,c)    = DCM; 
     end
     
